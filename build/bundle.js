@@ -273,7 +273,7 @@ const app = function(){
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
-      responsiveVoice.speak(words.word, "Russian Female")
+      responsiveVoice.speak(words.word);
     });
 
   });
@@ -294,7 +294,7 @@ const app = function(){
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
-      responsiveVoice.speak(words.word, "Polish Female")
+      responsiveVoice.speak(words.word);
     });
 
   });
@@ -315,7 +315,7 @@ const app = function(){
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
-      responsiveVoice.speak(words.word, "Italian Female")
+      responsiveVoice.speak(words.word);
     });
 
   });
@@ -336,7 +336,7 @@ const app = function(){
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
-      responsiveVoice.speak(words.word, "Afrikaans Male")
+      responsiveVoice.speak(words.word);
     });
 
   });
