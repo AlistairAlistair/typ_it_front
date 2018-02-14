@@ -24,9 +24,9 @@ const app = function(){
 
   var mainMap = new MapWrapper(mapDiv, center, 6);
 
-  const wordsData = new WordsData('http://localhost:5000/api/words');
-  const mathsData = new MathsData('http://localhost:5000/api/maths');
-  const flagsData = new FlagsData('http://localhost:5000/api/flags');
+  const wordsData = new WordsData('https://typitin-backend.herokuapp.com/api/words');
+  const mathsData = new MathsData('https://typitin-backend.herokuapp.com/api/maths');
+  const flagsData = new FlagsData('https://typitin-backend.herokuapp.com/api/flags');
   const wordsView = new WordsView(document.querySelector('.game-window'));
   const mathsView = new MathsView(document.querySelector('.game-window'));
   const flagsView = new FlagsView(document.querySelector('.game-window'));
