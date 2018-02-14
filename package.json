@@ -1,0 +1,23 @@
+{
+  "name": "front_end",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js",
+    "build": "webpack -w",
+    "test": "mocha src/models/specs "
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2"
+  },
+  "devDependencies": {
+    "webpack": "^3.10.0"
+  },
+  "devDependencies": {
+    "mocha": "^5.0.0"
+  }
+}
