@@ -60,94 +60,54 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-const KeyBoard = function(){
-  this.pressedKeys = [];
-};
+const Request = __webpack_require__(6);
 
-KeyBoard.prototype.addKey = function(key){
-  this.pressedKeys.push(key);
+const GameData = function(url){
+  this.url = url;
+  this.data = [];
 }
 
-module.exports = KeyBoard;
+GameData.prototype.getData = function(){
+  const request = new Request(this.url);
+  const successGet = function(dataIn){
+    this.data = dataIn;
+    this.giveData();
+  }.bind(this);
+  request.get(successGet);
+}
+
+GameData.prototype.giveData = function () {
+  return this.data;
+};
+
+module.exports = GameData;
 
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
-
-
-const Request = function(url) {
-  this.url = url;
-}
-
-Request.prototype.get = function(callback){
-
-  const request = new XMLHttpRequest();
-  request.open('GET', this.url);
-  request.addEventListener('load', function(){
-    if(this.status !== 200 ){
-      return ;
-    };
-    const responseBody = JSON.parse(this.responseText);
-
-    callback(responseBody);
-  });
-  request.send();
-};
-
-Request.prototype.post = function(callback, body) {
-  const request = new XMLHttpRequest();
-  request.open('POST', this.url);
-  request.setRequestHeader('Content-Type', 'application/json');
-  request.addEventListener('load', function() {
-    if(this.status!==201) {
-      return;
-    }
-
-    const responseBody = JSON.parse(this.responseText);
-
-    callback(responseBody);
-  });
-    request.send(JSON.stringify(body));
-}
-
-Request.prototype.delete = function(callback) {
-  const request = new XMLHttpRequest();
-  request.open('DELETE', this.url);
-  request.addEventListener('load', function() {
-    if(this.status!==204) {
-      return;
-    }
-
-    callback();
-  });
-  request.send();
-}
-
-module.exports = Request;
-
-
-/***/ }),
-/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const keyPress = __webpack_require__ (3);
-const keyRelease = __webpack_require__ (4);
-const KeyBoard = __webpack_require__ (0);
-const WordsData = __webpack_require__(5);
-const MathsData = __webpack_require__(6);
+const keyPress = __webpack_require__ (2);
+const keyRelease = __webpack_require__ (3);
+const keyMouseDown = __webpack_require__(4);
+const keyMouseUp = __webpack_require__(5);
+const WordsData = __webpack_require__(0);
+const MathsData = __webpack_require__(0);
+const FlagsData = __webpack_require__(0);
 const WordsView = __webpack_require__(7);
 const MathsView = __webpack_require__(8);
-const Words = __webpack_require__(9);
-const Maths = __webpack_require__(10);
-const MapWrapper = __webpack_require__(11);
+const FlagsView = __webpack_require__(9);
+const Words = __webpack_require__(10);
+const Maths = __webpack_require__(11);
+const Flags = __webpack_require__(12);
+const MapWrapper = __webpack_require__(13);
 
 
 
@@ -156,16 +116,18 @@ const app = function(){
   var mapDiv = document.getElementById('main-map');
 
 
-  var center = { lat: 36.204824, lng: 138.252924 };
+  var center = { lat: 56.890671, lng: -4.202646 };
 
-  var mainMap = new MapWrapper(mapDiv, center, 4);
+  var mainMap = new MapWrapper(mapDiv, center, 6);
 
-  const wordsData = new WordsData('http://localhost:5000/api/words');
-  const mathsData = new MathsData('http://localhost:5000/api/maths');
+  const wordsData = new WordsData('https://typitin-backend.herokuapp.com/api/words');
+  const mathsData = new MathsData('https://typitin-backend.herokuapp.com/api/maths');
+  const flagsData = new FlagsData('https://typitin-backend.herokuapp.com/api/flags');
   const wordsView = new WordsView(document.querySelector('.game-window'));
   const mathsView = new MathsView(document.querySelector('.game-window'));
+  const flagsView = new FlagsView(document.querySelector('.game-window'));
 
-  const startButton = document.querySelector('#start-button');
+  const flagButton = document.querySelector('#flag-game-button');
 
   const animalButton = document.querySelector('#animal-game-button');
   const colourButton = document.querySelector('#colour-game-button');
@@ -181,6 +143,7 @@ const app = function(){
   const title = document.querySelector('#title');
   wordsData.getData();
   mathsData.getData();
+  flagsData.getData();
 
   var deleteButtons = function(){
     animalButton.parentNode.removeChild(animalButton);
@@ -193,8 +156,30 @@ const app = function(){
     divideButton.parentNode.removeChild(divideButton);
     multiplyButton.parentNode.removeChild(multiplyButton);
     title.parentNode.removeChild(title);
+    flagButton.parentNode.removeChild(flagButton);
   }
 
+
+
+
+
+  flagButton.addEventListener('click', function(){
+    deleteButtons();
+    mapDiv.classList.remove('dont-display');
+    var gameData = flagsData.giveData();
+    const flags = new Flags(gameData, flagsView, mainMap);
+    flags.getFlagsToPlay();
+    flags.prepareRound(0);
+    keyPress(flags);
+    keyRelease();
+    keyMouseDown(flags);
+    keyMouseUp();
+
+    var speakButton = document.querySelector('#speaker');
+    speakButton.addEventListener('click', function(){
+      responsiveVoice.speak(flags.wordsToPlay[flags.roundCount].name)
+    });
+  })
 
   addButton.addEventListener('click', function(){
     deleteButtons();
@@ -205,6 +190,8 @@ const app = function(){
     maths.prepareRound(0);
     keyPress(maths);
     keyRelease();
+    keyMouseDown(maths);
+    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -222,6 +209,8 @@ const app = function(){
     maths.prepareRound(0);
     keyPress(maths);
     keyRelease();
+    keyMouseDown(maths);
+    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -239,6 +228,8 @@ const app = function(){
     maths.prepareRound(0);
     keyPress(maths);
     keyRelease();
+    keyMouseDown(maths);
+    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -256,6 +247,8 @@ const app = function(){
     maths.prepareRound(0);
     keyPress(maths);
     keyRelease();
+    keyMouseDown(maths);
+    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -268,14 +261,15 @@ const app = function(){
   animalButton.addEventListener('click', function(){
     deleteButtons();
 
-    const keyBoard = new KeyBoard();
+
     var gameData = wordsData.giveData();
-    const words = new Words(keyBoard, gameData, wordsView);
+    const words = new Words(gameData, wordsView);
     words.getWordsToPlay('animal');
-    console.log(words.keyboard);
     words.prepareRound(0);
     keyPress(words);
     keyRelease();
+    keyMouseDown(words);
+    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -287,14 +281,16 @@ const app = function(){
   foodButton.addEventListener('click', function(){
     deleteButtons();
 
-    const keyBoard = new KeyBoard();
+
     var gameData = wordsData.giveData();
-    const words = new Words(keyBoard, gameData, wordsView);
+    const words = new Words( gameData, wordsView);
     words.getWordsToPlay('food');
-    console.log(words.keyboard);
     words.prepareRound(0);
     keyPress(words);
     keyRelease();
+    keyMouseDown(words);
+    keyMouseUp();
+
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -306,14 +302,16 @@ const app = function(){
   colourButton.addEventListener('click', function(){
     deleteButtons();
 
-    const keyBoard = new KeyBoard();
+
     var gameData = wordsData.giveData();
-    const words = new Words(keyBoard, gameData, wordsView);
+    const words = new Words(gameData, wordsView);
     words.getWordsToPlay('colour');
-    console.log(words.keyboard);
     words.prepareRound(0);
     keyPress(words);
     keyRelease();
+    keyMouseDown(words);
+    keyMouseUp();
+
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -325,14 +323,16 @@ const app = function(){
   clothingButton.addEventListener('click', function(){
     deleteButtons();
 
-    const keyBoard = new KeyBoard();
+
     var gameData = wordsData.giveData();
-    const words = new Words(keyBoard, gameData, wordsView);
+    const words = new Words( gameData, wordsView);
     words.getWordsToPlay('clothing');
-    console.log(words.keyboard);
     words.prepareRound(0);
     keyPress(words);
     keyRelease();
+    keyMouseDown(words);
+    keyMouseUp();
+
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -344,14 +344,16 @@ const app = function(){
   testButton.addEventListener('click', function(){
     deleteButtons();
 
-    const keyBoard = new KeyBoard();
+
     var gameData = wordsData.giveData();
-    const words = new Words(keyBoard, gameData, wordsView);
+    const words = new Words(gameData, wordsView);
     words.getWordsToPlay('test');
-    console.log(words.keyboard);
     words.prepareRound(0);
     keyPress(words);
+    keyMouseDown(words);
+    keyMouseUp();
     keyRelease();
+
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -372,10 +374,10 @@ window.addEventListener('load', app);
 
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 2 */
+/***/ (function(module, exports) {
 
-const KeyBoard = __webpack_require__(0);
+
 
 
 const startKeyListener = function (game){
@@ -392,7 +394,12 @@ const startKeyListener = function (game){
       document.querySelector(keyID).classList.add('correct-key');
     }
     gameIn.run(key)
-  }
+  };
+
+  function changeCSS(keyID){
+    document.querySelector(keyID).classList.add('pressed');
+    document.querySelector(keyID).classList.add('wrong-key');
+  };
 
   function keyPress(e){
     if(e.keyCode == 48){
@@ -538,22 +545,22 @@ const startKeyListener = function (game){
 
     }
     if(e.keyCode == 32){ // z
-      react(game, e.key, '#space');
+      changeCSS('#space');
     }
     if(e.keyCode == 13){ // z
-      react(game, e.key, '#enter');
+      changeCSS('#enter');
     }
     if(e.keyCode == 37){ // z
-      react(game, e.key, '#key_left');
+      changeCSS('#key_left');
     }
     if(e.keyCode == 38){ // z
-      react(game, e.key, '#key_up');
+      changeCSS('#key_up');
     }
     if(e.keyCode == 39){ // z
-      react(game, e.key, '#key_right');
+      changeCSS('#key_right');
     }
     if(e.keyCode == 40){ // z
-      react(game, e.key, '#key_down');
+      changeCSS('#key_down');
     }
 
   };
@@ -562,7 +569,7 @@ module.exports = startKeyListener;
 
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports) {
 
 
@@ -712,57 +719,279 @@ module.exports = startKeyUpListener;
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 4 */
+/***/ (function(module, exports) {
 
-const Request = __webpack_require__(1);
 
-const WordsData = function(url){
-  this.url = url;
-  this.data = [];
-}
 
-WordsData.prototype.getData = function(){
-  const request = new Request(this.url);
-  const successGet = function(dataIn){
-    this.data = dataIn;
-    this.giveData();
-  }.bind(this);
-  request.get(successGet);
-}
 
-WordsData.prototype.giveData = function () {
-  return this.data;
+const startKeyListener = function (game){
+  document.onmousedown = keyPress;
+
+
+
+  function react(gameIn, key, keyID){
+    document.querySelector(keyID).classList.add('pressed');
+    if  (gameIn.nextletter !== key){
+      document.querySelector(keyID).classList.add('wrong-key');
+    }
+    if  (gameIn.nextletter === key){
+      document.querySelector(keyID).classList.add('correct-key');
+    }
+    gameIn.run(key)
+  }
+
+
+
+  function keyPress(e){
+    console.log((e.target.id));
+    if(e.target.id == 'key_0'){
+      react(game, '0', '#key_0');
+    }
+    if(e.target.id == 'key_1'){ // 1
+      react(game, '1', '#key_1');
+    }
+    if(e.target.id == 'key_2'){ // 2
+      react(game, '2', '#key_2');
+
+    }
+    if(e.target.id == 'key_3'){ // 3
+      react(game, '3', '#key_3');
+    }
+    if(e.target.id == 'key_4'){ // 4
+      react(game, '4', '#key_4');
+
+    }
+    if(e.target.id == 'key_5'){ // 5
+      react(game, '5', '#key_5');
+
+    }
+    if(e.target.id == 'key_6'){ // 6
+      react(game, '6', '#key_6');
+
+    }
+    if(e.target.id == 'key_7'){ // 7
+      react(game, '7', '#key_7');
+
+    }
+    if(e.target.id == 'key_8'){ // 8
+      react(game, '8', '#key_8');
+
+    }
+    if(e.target.id == 'key_9'){ // 9
+      react(game, '9', '#key_9');
+
+    }
+    if(e.target.id == 'key_A'){ // a
+      react(game, 'a', '#key_A');
+
+    }
+    if(e.target.id == 'key_B'){ // b
+      react(game, 'b', '#key_B');
+
+    }
+    if(e.target.id == 'key_C'){ // c
+      react(game, 'c', '#key_C');
+
+    }
+    if(e.target.id == 'key_D'){ // d
+      react(game, 'd', '#key_D');
+
+    }
+    if(e.target.id == 'key_E'){ // e
+      react(game, 'e', '#key_E');
+
+    }
+    if(e.target.id == 'key_F'){ // f
+      react(game, 'f', '#key_F');
+
+    }
+    if(e.target.id == 'key_G'){ // g
+      react(game, 'g', '#key_G');
+
+    }
+    if(e.target.id == 'key_H'){ // h
+      react(game, 'h', '#key_H');
+
+    }
+    if(e.target.id == 'key_I'){ // i
+      react(game, 'i', '#key_I');
+
+    }
+    if(e.target.id == 'key_J'){ // j
+      react(game, 'j', '#key_J');
+
+    }
+    if(e.target.id == 'key_K'){ // k
+      react(game, 'k', '#key_K');
+
+    }
+    if(e.target.id == 'key_L'){ // l
+      react(game, 'l', '#key_L');
+
+    }
+    if(e.target.id == 'key_M'){ // m
+      react(game, 'm', '#key_M');
+
+    }
+    if(e.target.id == 'key_N'){ // n
+      react(game, 'n', '#key_N');
+
+    }
+    if(e.target.id == 'key_O'){ // o
+      react(game, 'o', '#key_O');
+
+    }
+    if(e.target.id == 'key_P'){ // p
+      react(game, 'p', '#key_P');
+
+    }
+    if(e.target.id == 'key_Q'){ // q
+      react(game, 'q', '#key_Q');
+
+    }
+    if(e.target.id == 'key_R'){ // r
+      react(game, 'r', '#key_R');
+
+    }
+    if(e.target.id == 'key_S'){ // s
+      react(game, 's', '#key_S');
+
+    }
+    if(e.target.id == 'key_T'){ // t
+      react(game, 't', '#key_T');
+
+    }
+    if(e.target.id == 'key_U'){ // u
+      react(game, 'u', '#key_U');
+
+    }
+    if(e.target.id == 'key_V'){ // v
+      react(game, 'v', '#key_V');
+
+    }
+    if(e.target.id == 'key_W'){ // w
+      react(game, 'w', '#key_W');
+
+    }
+    if(e.target.id == 'key_X'){ // x
+      react(game, 'x', '#key_X');
+
+    }
+    if(e.target.id == 'key_Y'){ // y
+      react(game, 'y', '#key_Y');
+
+    }
+    if(e.target.id == 'key_Z'){ // z
+      react(game, 'z', '#key_Z');
+
+    }
+    if(e.target.id == 'space'){ // space
+      react(game, '-', '#space');
+    }
+    if(e.target.id == 'enter'){ // enter
+      react(game, '-', '#enter');
+    }
+    if(e.target.id == 'key_left'){ // left
+      react(game, '-', '#key_left');
+    }
+    if(e.target.id == 'key_up'){ // up
+      react(game, '-', '#key_up');
+    }
+    if(e.target.id == 'key_right'){ // right
+      react(game, '-', '#key_right');
+    }
+    if(e.target.id == 'key_down'){ // down
+      react(game, '-', '#key_down');
+    }
+
+  };
 };
+module.exports = startKeyListener;
 
-module.exports = WordsData;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+
+
+
+const startKeyListener = function (game){
+  document.onmouseup = keyRelease;
+
+
+
+  function changeCSS(keyID){
+  document.querySelector(keyID).classList.remove('pressed');
+  document.querySelector(keyID).classList.remove('wrong-key');
+  document.querySelector(keyID).classList.remove('correct-key');
+
+  }
+
+
+  function keyRelease(e){
+  changeCSS(`#${event.target.id}`);
+
+  };
+};
+module.exports = startKeyListener;
 
 
 /***/ }),
 /* 6 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-const Request = __webpack_require__(1);
 
-const MathsData = function(url){
+const Request = function(url) {
   this.url = url;
-  this.data = [];
 }
 
-MathsData.prototype.getData = function(){
-  const request = new Request(this.url);
-  const successGet = function(dataIn){
-    this.data = dataIn;
-    this.giveData();
-  }.bind(this);
-  request.get(successGet);
-}
+Request.prototype.get = function(callback){
 
-MathsData.prototype.giveData = function () {
-  return this.data;
+  const request = new XMLHttpRequest();
+  request.open('GET', this.url);
+  request.addEventListener('load', function(){
+    if(this.status !== 200 ){
+      return ;
+    };
+    const responseBody = JSON.parse(this.responseText);
+
+    callback(responseBody);
+  });
+  request.send();
 };
 
-module.exports = MathsData;
+Request.prototype.post = function(callback, body) {
+  const request = new XMLHttpRequest();
+  request.open('POST', this.url);
+  request.setRequestHeader('Content-Type', 'application/json');
+  request.addEventListener('load', function() {
+    if(this.status!==201) {
+      return;
+    }
+
+    const responseBody = JSON.parse(this.responseText);
+
+    callback(responseBody);
+  });
+    request.send(JSON.stringify(body));
+}
+
+Request.prototype.delete = function(callback) {
+  const request = new XMLHttpRequest();
+  request.open('DELETE', this.url);
+  request.addEventListener('load', function() {
+    if(this.status!==204) {
+      return;
+    }
+
+    callback();
+  });
+  request.send();
+}
+
+module.exports = Request;
 
 
 /***/ }),
@@ -929,11 +1158,103 @@ module.exports = MathsView;
 /* 9 */
 /***/ (function(module, exports) {
 
-const Words = function(keyboard, gamedata, gameview){
+const FlagsView = function(container){
+  this.container = container;
+}
+
+FlagsView.prototype.createImage = function (data) {
+var image = document.createElement('img');
+image.id = "flag-image";
+image.src = data.image;
+image.alt = data.name;
+return image;
+};
+
+FlagsView.prototype.winScreen = function (){
+  this.container.innerHTML = '';
+  var welltext = document.createElement('p');
+  welltext.id = "win-text";
+  welltext.innerText = "w e l l "
+  var donetext = document.createElement('p');
+  donetext.id = "win-text";
+  donetext.innerText = " d o n e !"
+  var image = document.createElement('img');
+  image.id = 'win-image';
+  image.src = '/images/trophy.svg'
+  image.alt = 'trophy'
+  image.style.cssText = "width: 120px;height: 120px;"
+  this.container.appendChild(welltext);
+  this.container.appendChild(image);
+  this.container.appendChild(donetext);
+}
+
+FlagsView.prototype.prepareWord = function(word){
+  var wordIn = word;
+  var newWord = '';
+  var wordSplit = [];
+  for (var i = 0; i < wordIn.length; i++) {
+    wordSplit.push(wordIn.charAt(i))
+    newWord += (wordSplit[i] + ' ');
+  }
+  return newWord;
+}
+
+FlagsView.prototype.updateAnswer = function (newAnswer) {
+  answerView = document.querySelector('#flag-answer-display');
+  answerView.innerText = this.prepareWord(newAnswer);
+};
+
+FlagsView.prototype.clearRound = function(){
+  var titleAndFlag = document.querySelector('#title-and-flag')
+  titleAndFlag.innerHTML ='';
+
+  var answerAndCounter = document.querySelector('#answer-and-counter')
+  answerAndCounter.innerHTML ='';
+}
+
+FlagsView.prototype.render = function(data, answerIn, roundCount, totalRounds, map){
+  var word = document.createElement('p');
+  word.id = "display-country";
+
+
+
+  var answer = document.createElement('p');
+  answer.id = "flag-answer-display";
+
+  var counter = document.createElement('p');
+  counter.id = "counter-display-flag";
+  counter.innerText = `${(roundCount + 1)} of  ${totalRounds}`
+
+  var image = this.createImage (data);
+  // image.style.cssText = "width: 120px;height: 120px;"
+  word.innerText = this.prepareWord(data.name);
+  answer.innerText = this.prepareWord(answerIn);
+
+  var titleAndFlag = document.querySelector('#title-and-flag')
+  var answerAndCounter = document.querySelector('#answer-and-counter')
+
+  titleAndFlag.appendChild(word);
+  titleAndFlag.appendChild(image);
+  answerAndCounter.appendChild(answer);
+  answerAndCounter.appendChild(counter);
+
+
+  map.googleMap.setCenter(data.coords);
+  map.googleMap.setZoom(data.zoom);
+
+}
+
+module.exports = FlagsView;
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+const Words = function(gamedata, gameview){
   this.word = "";
   this.answer = "";
   this.nextletter = "";
-  this.keyboard = keyboard;
   this.gamedata = gamedata;
   this.gameview = gameview;
   this.wordsToPlay = [];
@@ -1040,7 +1361,7 @@ module.exports = Words;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 const Maths = function(gamedata, gameview){
@@ -1119,7 +1440,136 @@ module.exports = Maths;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
+/***/ (function(module, exports) {
+
+const Flags = function(gamedata, gameview, map){
+  this.word = "";
+  this.answer = "";
+  this.nextletter = "";
+  this.gamedata = gamedata;
+  this.gameview = gameview;
+  this.wordsToPlay = [];
+  this.roundCount = 0;
+  this.zoom = 5;
+  this.coords = { lat: 56.890671, lng: -4.202646 };
+  this.map = map;
+}
+
+Flags.prototype.setAnswerLength = function () {
+  var newAnswer = "";
+  for (var i = 0 ; i < this.word.length ; i++) {
+    newAnswer += "_";
+  }
+  this.answer = newAnswer;
+};
+
+
+
+Flags.prototype.setWord = function(wordIn){
+  console.log(wordIn);
+  this.word = wordIn;
+  this.nextletter = this.word.charAt(0);
+}
+
+Flags.prototype.setMap = function(object){
+  this.coords = object.coords;
+  this.zoom = object.zoom;
+}
+
+Flags.prototype.shuffle = function(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+Flags.prototype.getFlagsToPlay = function(category){
+  this.roundCount = 0;
+  var playArray = [];
+  if (category){
+    for (word of this.gamedata){
+      if (category == word.category){
+        playArray.push(word)
+      }
+    }
+    this.wordsToPlay = this.shuffle(playArray);
+  }
+  else{
+    var shuffleArray = this.shuffle(this.gamedata);
+    for (var i = 0; i < 10; i++) {
+    this.wordsToPlay.push(shuffleArray[i]);
+  }
+  }
+};
+
+Flags.prototype.fillAnswer = function (letter) {
+  var newAnswerArray = [];
+  for (var i = 0; i < this.answer.length; i++) {
+    if (this.answer.charAt(i) !== '_'){
+      newAnswerArray.push(this.answer.charAt(i));
+    }
+  }
+  newAnswerArray.push(letter);
+  var letterCount = newAnswerArray.length;
+  this.nextletter = this.word.charAt(letterCount);
+  for (var i = 0; i < (this.word.length - (letterCount)); i++) {
+    newAnswerArray.push('_');
+  }
+  this.answer = newAnswerArray.join("");
+};
+
+Flags.prototype.checkLetter = function(letterIn){
+  if (letterIn === this.nextletter){
+    this.fillAnswer(letterIn);
+  }
+}
+
+Flags.prototype.prepareRound = function(index){
+  var numberofRounds = this.wordsToPlay.length;
+  for (var i = 0; i < numberofRounds; i++) {
+    if (index === i){
+      this.setWord(this.wordsToPlay[i].name);
+      this.setMap(this.wordsToPlay[i]);
+      this.setAnswerLength();
+      this.gameview.render(this.wordsToPlay[i], this.answer, this.roundCount, numberofRounds, this.map);
+    }
+    if (index >= this.wordsToPlay.length){
+
+      this.gameview.winScreen();
+    }
+  }
+};
+
+
+Flags.prototype.winCheck = function () {
+  if(this.word === this.answer){
+    this.roundCount += 1;
+    var timethis = this;
+    setTimeout(function () {
+      timethis.gameview.clearRound();
+    }, 600);
+    setTimeout(function () {
+      timethis.prepareRound(timethis.roundCount);
+    }, 660);
+  }
+};
+
+Flags.prototype.run = function(letter){
+  this.checkLetter(letter);
+  this.gameview.updateAnswer(this.answer);
+  return(this.winCheck());
+};
+
+
+
+
+module.exports = Flags;
+
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports) {
 
 var MapWrapper = function (container, coords, zoom) {
