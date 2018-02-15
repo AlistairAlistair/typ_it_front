@@ -1,7 +1,6 @@
 const keyPress = require ('./models/keyPress');
 const keyRelease = require ('./models/keyRelease');
 const keyMouseDown = require('./models/keyMouseDown');
-const keyMouseUp = require('./models/keyMouseUp');
 const WordsData = require('./models/gameData.js');
 const MathsData = require('./models/gameData.js');
 const FlagsData = require('./models/gameData.js');
@@ -77,7 +76,6 @@ const app = function(){
     keyPress(flags);
     keyRelease();
     keyMouseDown(flags);
-    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -95,7 +93,6 @@ const app = function(){
     keyPress(maths);
     keyRelease();
     keyMouseDown(maths);
-    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -114,7 +111,6 @@ const app = function(){
     keyPress(maths);
     keyRelease();
     keyMouseDown(maths);
-    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -133,7 +129,6 @@ const app = function(){
     keyPress(maths);
     keyRelease();
     keyMouseDown(maths);
-    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -152,7 +147,6 @@ const app = function(){
     keyPress(maths);
     keyRelease();
     keyMouseDown(maths);
-    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -173,7 +167,6 @@ const app = function(){
     keyPress(words);
     keyRelease();
     keyMouseDown(words);
-    keyMouseUp();
 
     var speakButton = document.querySelector('#speaker');
     speakButton.addEventListener('click', function(){
@@ -193,7 +186,6 @@ const app = function(){
     keyPress(words);
     keyRelease();
     keyMouseDown(words);
-    keyMouseUp();
 
 
     var speakButton = document.querySelector('#speaker');
@@ -214,7 +206,6 @@ const app = function(){
     keyPress(words);
     keyRelease();
     keyMouseDown(words);
-    keyMouseUp();
 
 
     var speakButton = document.querySelector('#speaker');
@@ -235,7 +226,6 @@ const app = function(){
     keyPress(words);
     keyRelease();
     keyMouseDown(words);
-    keyMouseUp();
 
 
     var speakButton = document.querySelector('#speaker');
@@ -255,7 +245,6 @@ const app = function(){
     words.prepareRound(0);
     keyPress(words);
     keyMouseDown(words);
-    keyMouseUp();
     keyRelease();
 
 
