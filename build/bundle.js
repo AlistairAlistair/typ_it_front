@@ -393,7 +393,6 @@ const startKeyListener = function (game){
   function keyPress(e){
     if(e.keyCode == 48){
       react(game, e.key, '#key_0');
-      console.log (game.keyboard.pressedKeys);
     }
     if(e.keyCode == 49){ // 1
       react(game, e.key, '#key_1');
@@ -738,7 +737,6 @@ const startKeyListener = function (game){
   }
 
   function keyPress(e){
-    console.log((e.target.id));
     if(e.target.id == 'key_0'){
       react(game, '0', '#key_0');
       setTimeout(function () {
@@ -1509,7 +1507,6 @@ Maths.prototype.prepareRound = function(index){
 };
 
 Maths.prototype.winCheck = function (key) {
-  console.log("solution", this.solution);
   if(this.solution === key){
 
     this.gameview.updateAnswer();
@@ -1525,7 +1522,6 @@ Maths.prototype.winCheck = function (key) {
 };
 
 Maths.prototype.run = function(key){
-  console.log(this.nextletter);
   this.winCheck(key);
 };
 
@@ -1560,7 +1556,6 @@ Flags.prototype.setAnswerLength = function () {
 
 
 Flags.prototype.setWord = function(wordIn){
-  console.log(wordIn);
   this.word = wordIn;
   this.nextletter = this.word.charAt(0);
 }
