@@ -50,7 +50,6 @@ Maths.prototype.prepareRound = function(index){
 };
 
 Maths.prototype.winCheck = function (key) {
-  console.log("solution", this.solution);
   if(this.solution === key){
 
     this.gameview.updateAnswer();
@@ -66,7 +65,6 @@ Maths.prototype.winCheck = function (key) {
 };
 
 Maths.prototype.run = function(key){
-  console.log(this.nextletter);
   this.winCheck(key);
 };
 

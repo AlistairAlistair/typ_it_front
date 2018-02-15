@@ -22,7 +22,6 @@ Flags.prototype.setAnswerLength = function () {
 
 
 Flags.prototype.setWord = function(wordIn){
-  console.log(wordIn);
   this.word = wordIn;
   this.nextletter = this.word.charAt(0);
 }

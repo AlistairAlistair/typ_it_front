@@ -25,7 +25,6 @@ const startKeyListener = function (game){
   function keyPress(e){
     if(e.keyCode == 48){
       react(game, e.key, '#key_0');
-      console.log (game.keyboard.pressedKeys);
     }
     if(e.keyCode == 49){ // 1
       react(game, e.key, '#key_1');

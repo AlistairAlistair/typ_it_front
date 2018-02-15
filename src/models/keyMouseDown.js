@@ -25,7 +25,6 @@ const startKeyListener = function (game){
   }
 
   function keyPress(e){
-    console.log((e.target.id));
     if(e.target.id == 'key_0'){
       react(game, '0', '#key_0');
       setTimeout(function () {
